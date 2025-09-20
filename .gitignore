@@ -1,0 +1,50 @@
+# ===================================================================
+# .gitignore Otimizado para Projetos .NET
+# Foco em .NET 8, ASP.NET Core, EF Core, etc.
+# ===================================================================
+
+## Resultados de Build e Compilação
+# Ignora as pastas de saída do compilador.
+[Bb]in/
+[Oo]bj/
+
+## IDE, Editor e Arquivos de Usuário
+# Ignora arquivos gerados pelo Visual Studio, Rider e VS Code que guardam
+# configurações específicas do seu computador.
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Arquivos de Configuração Local e Segredos
+# É uma boa prática ignorar arquivos de configuração de desenvolvimento,
+# que podem conter senhas, chaves de API e outras informações sensíveis.
+appsettings.Development.json
+secrets.json
+*.env
+
+## Logs e Resultados de Testes
+# Arquivos gerados durante a execução ou testes.
+*.log
+[Tt]est[Rr]esult*/
+
+## Arquivos de Publicação
+# Ignora a pasta e os perfis de publicação.
+publish/
+*.pubxml
+*.publishproj
+
+## Pacotes NuGet
+# Pacotes podem ser restaurados e não devem ser versionados.
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+## Arquivos do Sistema Operacional
+# Arquivos temporários comuns do Windows, macOS e Linux.
+*~
+~$*
+.DS_Store
+Thumbs.db
