@@ -113,6 +113,15 @@ var app = builder.Build();
 
 #region Minimal APIs
 
+
+
+#region Index Endpoint
+
+app.MapGet("/", () => "API rodando no Docker 🚀");
+
+#endregion Index Endpoint
+
+
 #region User Endpoints
 app.MapPost("/api/users", async (CreateUserRequest request, IValidator<CreateUserRequest> validator, IMediator _mediator) =>
 {
