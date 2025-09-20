@@ -21,6 +21,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
+
 
 #region Swagger Configuration
 builder.Services.AddSwaggerGen(c =>
@@ -286,7 +288,7 @@ app.MapGet("/api/promotions", async (IPromotionQuery _promotionQuery) =>
     return games is not null ? Results.Ok(games) : Results.NotFound();
 }).RequireAuthorization("AdminPolicy").WithTags("Promotions");
 
-app.MapPost("/api/promotions", async (CreatePromotionRequest request, IValidator<CreatePromotionRequest> validator,  IMediator _mediator) =>
+app.MapPost("/api/promotions", async (CreatePromotionRequest request, IValidator<CreatePromotionRequest> validator, IMediator _mediator) =>
 {
     var validationResult = await validator.ValidateAsync(request);
     if (!validationResult.IsValid)
