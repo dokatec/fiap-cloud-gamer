@@ -27,7 +27,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.WebHost.UseUrls("http://localhost:5000");
 
 
 #region Swagger Configuration
@@ -115,6 +114,14 @@ builder.Services
 #endregion
 
 var app = builder.Build();
+
+#region Database Migration
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<FcgDbContext>();
+    dbContext.Database.Migrate();
+}
+#endregion
 
 
 #region Minimal APIs

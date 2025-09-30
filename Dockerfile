@@ -1,41 +1,36 @@
-# Etapa de Build - Compila a aplicação
+# Stage 1: Build the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["Fcg.Api/Fcg.Api.csproj", "Fcg.Api/"]
-COPY ["Fcg.Application/Fcg.Application.csproj", "Fcg.Application/"]
-COPY ["Fcg.Domain/Fcg.Domain.csproj", "Fcg.Domain/"]
-COPY ["Fcg.Infrastructure/Fcg.Infrastructure.csproj", "Fcg.Infrastructure/"]
-RUN dotnet restore "Fcg.Api/Fcg.Api.csproj"
+
+# Copy all the project files
+COPY Fcg.Api.sln .
+COPY Fcg.Api/Fcg.Api.csproj Fcg.Api/
+COPY Fcg.Application/Fcg.Application.csproj Fcg.Application/
+COPY Fcg.Domain/Fcg.Domain.csproj Fcg.Domain/
+COPY Fcg.Infrastructure/Fcg.Infrastructure.csproj Fcg.Infrastructure/
+# Note: Tests are not needed for the final image, but restore might need the project file.
+COPY Fcg.Tests/Fcg.Tests.csproj Fcg.Tests/
+
+# Restore dependencies
+RUN dotnet restore Fcg.Api.sln
+
+# Copy the rest of the source code
 COPY . .
 
-WORKDIR "/src/Fcg.Api"
-RUN dotnet build "Fcg.Api.csproj" -c Release -o /app/build
+# Publish the API project
+WORKDIR /src/Fcg.Api
+RUN dotnet publish -c Release -o /app/publish
 
-FROM build AS publish
-RUN dotnet publish "Fcg.Api.csproj" -c Release -o /app/publish
-
-# Etapa Final - Configura o ambiente de execução com a aplicação e o banco de dados
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
-
-# Instala dependências do SO e do dotnet
-USER root
-RUN apt-get update && apt-get install -y postgresql postgresql-client && rm -rf /var/lib/apt/lists/*
-RUN dotnet tool install --global dotnet-ef
-
-# Copia o código fonte para um diretório separado para uso do 'dotnet ef'
-WORKDIR /source
-COPY --from=build /src .
-
-# Define o diretório de trabalho principal e copia a aplicação compilada
+# Stage 2: Create the final runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 
-# Copia e dá permissão de execução para o script de entrypoint
-COPY entrypoint.sh .
-RUN chmod +x ./entrypoint.sh
-
-# Expõe a porta da aplicação
+# Expose the port the app will listen on
 EXPOSE 5000
 
-# Define o script como ponto de entrada do contêiner
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+# Define environment variables
+ENV ASPNETCORE_URLS=http://+:5000
+
+# Set the entrypoint for the container
+ENTRYPOINT ["dotnet", "Fcg.Api.dll"]
