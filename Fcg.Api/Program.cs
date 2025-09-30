@@ -14,14 +14,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Prometheus;
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 #region Services Configuration
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.WebHost.UseUrls("http://0.0.0.0:5000");
+builder.WebHost.UseUrls("http://localhost:5000");
 
 
 #region Swagger Configuration
@@ -56,7 +62,7 @@ builder.Services.AddSwaggerGen(c =>
 
 #region Database
 builder.Services.AddDbContext<FcgDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 #endregion
 
 #region MediatR
@@ -77,7 +83,7 @@ builder.Services.AddAuthentication("Bearer")
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
         };
     });
 
@@ -134,9 +140,12 @@ app.MapPost("/api/users", async (CreateUserRequest request, IValidator<CreateUse
 
     var response = await _mediator.Send(request);
 
-    return response is not null
-        ? Results.Created($"/api/users/{response.UserId}", response)
-        : Results.BadRequest(response!.Message);
+    if (response is null || !response.Success)
+    {
+        return Results.BadRequest(new { Message = response?.Message ?? "Ocorreu um erro ao processar a solicitação." });
+    }
+
+    return Results.Created($"/api/users/{response.UserId}", response);
 }).AllowAnonymous().WithTags("Users");
 
 app.MapGet("/api/users/{id}", async (Guid id, IUserQuery _userQuery) =>
@@ -164,9 +173,12 @@ app.MapPut("/api/users/{id}/role", async (Guid id, UpdateRoleRequest request, IV
 
     var response = await _mediator.Send(request);
 
-    return response is not null
-        ? Results.Created($"/api/users/{response.UserId}", response)
-        : Results.BadRequest(response!.Message);
+    if (response is null || !response.Success)
+    {
+        return Results.BadRequest(new { Message = response?.Message ?? "Ocorreu um erro ao processar a solicitação." });
+    }
+
+    return Results.Ok(response);
 }).RequireAuthorization("AdminPolicy").WithTags("Users");
 
 app.MapGet("/api/users", async (IUserQuery _userQuery) =>
@@ -251,9 +263,12 @@ app.MapPost("/api/games", async (CreateGameRequest request, IValidator<CreateGam
 
     var response = await _mediator.Send(request);
 
-    return response is not null
-        ? Results.Created($"/api/games/{response.GameId}", response)
-        : Results.BadRequest(response!.Message);
+    if (response is null || !response.Success)
+    {
+        return Results.BadRequest(new { Message = response?.Message ?? "Ocorreu um erro ao processar a solicitação." });
+    }
+
+    return Results.Created($"/api/games/{response.GameId}", response);
 }).RequireAuthorization("AdminPolicy").WithTags("Games");
 
 app.MapPost("/api/games/buy", async (BuyGameRequest request, IValidator<BuyGameRequest> validator, IMediator _mediator) =>
@@ -267,9 +282,12 @@ app.MapPost("/api/games/buy", async (BuyGameRequest request, IValidator<BuyGameR
 
     var response = await _mediator.Send(request);
 
-    return response is not null
-        ? Results.Created($"/api/users/{response.UserId}/games", response)
-        : Results.BadRequest(response!.Message);
+    if (response is null || !response.Success)
+    {
+        return Results.BadRequest(new { Message = response?.Message ?? "Ocorreu um erro ao processar a solicitação." });
+    }
+
+    return Results.Created($"/api/users/{response.UserId}/games", response);
 }).RequireAuthorization().WithTags("Games");
 
 app.MapDelete("/api/games/{id}", async (Guid id, IGameRepository _gameRepository) =>
@@ -308,9 +326,12 @@ app.MapPost("/api/promotions", async (CreatePromotionRequest request, IValidator
 
     var response = await _mediator.Send(request);
 
-    return response is not null
-        ? Results.Created($"/api/promotions/{response.PromotionId}", response)
-        : Results.BadRequest(response!.Message);
+    if (response is null || !response.Success)
+    {
+        return Results.BadRequest(new { Message = response?.Message ?? "Ocorreu um erro ao processar a solicitação." });
+    }
+
+    return Results.Created($"/api/promotions/{response.PromotionId}", response);
 }).RequireAuthorization("AdminPolicy").WithTags("Promotions");
 
 app.MapDelete("/api/promotions/{id}", async (Guid id, IPromotionRepository _promotionRepository) =>
@@ -332,13 +353,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseLogMiddleware();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseHttpMetrics();
+app.MapMetrics();
+
 app.MapControllers();
+
 
 #endregion
 

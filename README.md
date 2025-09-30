@@ -1,31 +1,26 @@
-# 🎮 FIAP Cloud Games - Tech Challenge Fase 1
+# 🎮 FIAP Cloud Games - Tech Challenge Fase 2
 
-Este projeto é a entrega da Fase 1 do Tech Challenge da FIAP. A proposta é desenvolver uma API REST em .NET 8 para cadastro de usuários e biblioteca de jogos adquiridos, com foco em boas práticas, qualidade de software e estrutura para expansão futura.
+Este projeto é a entrega da Fase 2 do Tech Challenge da FIAP. A proposta é garantir que a plataforma seja
+escalável, confiável e monitorável. Foi estruturado para aplicar os conhecimentos
+adquiridos nas disciplinas que vimos, como CI/CD, Docker, Azure DevOps, AWS
+e ferramentas de monitoramento.
 
 ## 📌 Funcionalidades Implementadas
 
-- ✅ Cadastro de usuários com validação de e-mail e senha forte
-- ✅ Autenticação via JWT com controle de acesso por **roles** (Usuário / Administrador)
-- ✅ Cadastro e listagem de jogos
-- ✅ Associação de jogos à biblioteca do usuário
-- ✅ Cadastro de promoções
-- ✅ Middleware de tratamento de erros e logs estruturados
-- ✅ Documentação da API com Swagger
-- ✅ Testes unitários com xUnit e aplicação de TDD/BDD
+- ✅ Garantir escalabilidade e resiliência da aplicação
+- ✅ Dockerizar a aplicação
+- ✅ Monitorar a aplicação
+- ✅ Automatizar a entrega com CI/CD
 
 ---
 
 ## 🧠 Tecnologias Utilizadas
 
-- .NET 8
-- Entity Framework Core
-- SQL Server
-- Swagger
-- JWT (JSON Web Token)
-- xUnit + Moq
-- BDDfy (para testes comportamentais)
-- FluentValidation
-- Clean Architecture + DDD
+- Github
+- Github Actions
+- Docker
+- Docker Hub
+- AWS (ECS, EBS, Load Balancer, Auto Scaling)
 
 ---
 
@@ -53,3 +48,4 @@ src/
 ├── FiapCloudGames.Domain        # Entidades, Enums, Interfaces de domínio
 ├── FiapCloudGames.Infrastructure# Repositórios, contexto EF Core, JWT service
 ├── FiapCloudGames.Tests         # Testes unitários (TDD/BDD)
+```

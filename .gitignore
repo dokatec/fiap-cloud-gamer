@@ -17,6 +17,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+fiap-cloud-pos.pem
 
 ## Arquivos de Configuração Local e Segredos
 # É uma boa prática ignorar arquivos de configuração de desenvolvimento,
