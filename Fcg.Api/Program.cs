@@ -1,5 +1,6 @@
 using Fcg.Api.Middlewares;
 using Fcg.Application.Requests;
+using Fcg.Application.Responses;
 using Fcg.Application.Services;
 using Fcg.Domain.Entities;
 using Fcg.Domain.Queries;
@@ -66,7 +67,8 @@ builder.Services.AddDbContext<FcgDbContext>(options =>
 
 #region MediatR
 builder.Services.AddMediatR(fcg =>
-    fcg.RegisterServicesFromAssemblyContaining<CreateUserRequest>());
+    fcg.RegisterServicesFromAssemblyContaining<CreateUserRequest>()
+       .RegisterServicesFromAssemblyContaining<CreateAdminUserRequest>());
 #endregion
 
 #region Authentication & Authorization
@@ -108,7 +110,8 @@ builder.Services.AddScoped<IPromotionQuery, PromotionQuery>();
 builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services
-    .AddValidatorsFromAssemblyContaining<CreateUserRequestValidator>();
+    .AddValidatorsFromAssemblyContaining<CreateUserRequestValidator>()
+    .AddValidatorsFromAssemblyContaining<CreateAdminUserRequestValidator>();
 #endregion
 
 #endregion
@@ -154,6 +157,25 @@ app.MapPost("/api/users", async (CreateUserRequest request, IValidator<CreateUse
 
     return Results.Created($"/api/users/{response.UserId}", response);
 }).AllowAnonymous().WithTags("Users");
+
+app.MapPost("/api/admin/users", async (CreateAdminUserRequest request, IValidator<CreateAdminUserRequest> validator, IMediator _mediator) =>
+{
+    var validationResult = await validator.ValidateAsync(request);
+    if (!validationResult.IsValid)
+    {
+        return Results.BadRequest(validationResult.Errors
+            .Select(e => new { e.PropertyName, e.ErrorMessage }));
+    }
+
+    var response = await _mediator.Send(request) as CreateAdminUserResponse;
+
+    if (response is null || !response.Success)
+    {
+        return Results.BadRequest(new { Message = response?.Message ?? "Ocorreu um erro ao processar a solicitação." });
+    }
+
+    return Results.Created($"/api/users/{response.UserId}", response);
+}).WithTags("Users");
 
 app.MapGet("/api/users/{id}", async (Guid id, IUserQuery _userQuery) =>
 {

@@ -18,6 +18,8 @@
 *.userosscache
 *.sln.docstates
 fiap-cloud-pos.pem
+/Migrations
+/Fcg.Infrastructure/Fcg/Infrastructure/Data/Migrations/
 
 ## Arquivos de Configuração Local e Segredos
 # É uma boa prática ignorar arquivos de configuração de desenvolvimento,
