@@ -1,4 +1,4 @@
-name: .NET CI - Docker Hub
+name: .NET CI -- Docker Hub
 
 on:
   push:
